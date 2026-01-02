@@ -1,67 +1,31 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<title>Criar Bio</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{background:#0a0a0a;color:white;font-family:Arial;padding:20px}
-input,button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none}
-button{background:#8a2be2;color:white;font-weight:bold}
-</style>
-</head>
-<body>
-
-<h2>🌌 Criar Bio</h2>
-
-<input id="nome" placeholder="Nome">
-<input id="youtube" placeholder="YouTube">
-<input id="instagram" placeholder="Instagram">
-<input id="telegram" placeholder="Telegram">
-<input id="tiktok" placeholder="TikTok">
-<input id="kwai" placeholder="Kwai">
-<input id="grupo" placeholder="WhatsApp Grupo">
-<input id="canal" placeholder="WhatsApp Canal">
-
-<label>🎨 Cor dos botões</label>
-<input type="color" id="cor" value="#8a2be2">
-
-<label>❄️ Cor do snow</label>
-<input type="color" id="snow" value="#8a2be2">
-
-<input id="download" placeholder="Link do download final">
-
-<button onclick="gerar()">GERAR BIO</button>
-
 <script>
-function gerar(){
+function gerarBio() {
+
     const dados = {
-        id: Date.now(),
-        nome: nome.value,
-        youtube: youtube.value,
-        instagram: instagram.value,
-        telegram: telegram.value,
-        tiktok: tiktok.value,
-        kwai: kwai.value,
-        grupo: grupo.value,
-        canal: canal.value,
-        cor: cor.value,
-        snow: snow.value,
-        download: download.value,
-        cliques: 0,
-        data: new Date().toLocaleString()
+        nome: document.getElementById("nome").value,
+        instagram: document.getElementById("instagram").value,
+        youtube: document.getElementById("youtube").value,
+        telegram: document.getElementById("telegram").value,
+        cor: document.getElementById("cor").value,
+        snow: document.getElementById("snow").value,
+        foto: document.getElementById("foto").value
     };
 
+    const hash = btoa(JSON.stringify(dados));
+    const link = window.location.origin + "/bio.html?data=" + hash;
+
+    // Salva no painel admin
     let bios = JSON.parse(localStorage.getItem("bios")) || [];
-    bios.push(dados);
+    bios.push({
+        nome: dados.nome,
+        link: link,
+        data: new Date().toLocaleString()
+    });
     localStorage.setItem("bios", JSON.stringify(bios));
 
-    const link = location.origin + "/bio.html?id=" + dados.id;
     navigator.clipboard.writeText(link);
+    alert("✅ Link da bio copiado automaticamente!");
 
-    alert("✅ Bio criada!\nLink copiado:\n" + link);
+    window.open("bio.html?data=" + hash, "_blank");
 }
 </script>
-
-</body>
-</html>
