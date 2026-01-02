@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Concluir Etapas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{margin:0;background:#000;color:#fff;font-family:Arial;text-align:center}
+.container{padding:20px}
+.progress-bar{height:10px;background:#222;border-radius:5px;overflow:hidden}
+#progress{height:100%;width:0;background:lime;transition:.4s}
+button,a{
+  display:block;margin:12px auto;padding:14px;
+  border-radius:6px;border:none;font-weight:bold;
+  width:100%;max-width:400px
+}
+.visit{background:#007bff;color:#fff}
+.confirm{background:#555;color:#fff;opacity:.6}
+.confirm.active{background:green;opacity:1}
+#download{display:none;background:green;color:#fff}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h2 id="titulo">Concluir tarefa</h2>
+
+<div class="progress-bar">
+  <div id="progress"></div>
+</div>
+
+<button class="visit" onclick="abrir()">🔗 Visitar página</button>
+<button id="confirm" class="confirm" disabled onclick="finalizar()">✅ Já visitei</button>
+
+<a id="download" target="_blank">⬇ Baixar agora</a>
+
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+
+const titulo = params.get("titulo");
+const canal = params.get("canalLink");
+const download = params.get("downloadLink");
+
+document.getElementById("titulo").textContent = titulo;
+
+let saiuEm = null;
+
+function abrir(){
+  window.open(canal,"_blank");
+  saiuEm = Date.now();
+}
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible" && saiuEm){
+    const tempo = (Date.now()-saiuEm)/1000;
+    if(tempo>=8){
+      document.getElementById("confirm").disabled=false;
+      document.getElementById("confirm").classList.add("active");
+      document.getElementById("progress").style.width="100%";
+    }
+  }
+});
+
+function finalizar(){
+  const btn = document.getElementById("download");
+  btn.href = download;
+  btn.style.display="block";
+}
+</script>
+
+</body>
+</html>
