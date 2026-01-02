@@ -5,92 +5,71 @@
 <title>Minha Bio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
 <style>
-body{margin:0;background:#050505;color:white;font-family:Arial}
-#particles-js{position:fixed;width:100%;height:100%;z-index:0}
-
-.container{position:relative;z-index:2;max-width:420px;margin:auto;padding:20px}
-.card{background:rgba(255,255,255,.05);border-radius:25px;padding:25px;text-align:center}
-
-.link{padding:14px;margin:8px 0;border-radius:12px;background:#222;cursor:pointer}
-.link.ok{background:var(--cor)}
-
-button{width:100%;padding:14px;border:none;border-radius:12px;background:red;color:white;font-weight:bold}
+body{
+    margin:0;
+    background:#050505;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+.card{
+    max-width:400px;
+    margin:40px auto;
+    padding:25px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+}
+img{
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    border:3px solid #8a2be2;
+}
+a{
+    display:block;
+    margin:10px 0;
+    padding:14px;
+    border-radius:12px;
+    text-decoration:none;
+    color:white;
+    font-weight:bold;
+}
 </style>
 </head>
-
 <body>
 
-<div id="particles-js"></div>
-
-<div class="container">
 <div class="card">
-<h2 id="nome"></h2>
-<div id="links"></div>
-<button id="baixar" disabled>⬇️ BAIXAR</button>
-</div>
+    <img id="foto">
+    <h2 id="nome"></h2>
+
+    <div id="links"></div>
 </div>
 
 <script>
-const id = new URLSearchParams(location.search).get("id");
-let bios = JSON.parse(localStorage.getItem("bios")) || [];
-let bio = bios.find(b => b.id == id);
+const params = new URLSearchParams(window.location.search);
+const data = params.get("data");
 
-if(!bio){
-    document.body.innerHTML = "<h2>Bio não encontrada</h2>";
-    throw "";
+if(!data){
+    document.body.innerHTML = "<h2>Link inválido</h2>";
+} else {
+    const d = JSON.parse(atob(data));
+
+    document.getElementById("nome").innerText = d.nome;
+    document.getElementById("foto").src = d.foto || "https://i.imgur.com/8Km9tLL.png";
+
+    const links = document.getElementById("links");
+
+    if(d.instagram)
+        links.innerHTML += `<a style="background:${d.cor}" href="${d.instagram}" target="_blank">Instagram</a>`;
+
+    if(d.youtube)
+        links.innerHTML += `<a style="background:${d.cor}" href="${d.youtube}" target="_blank">YouTube</a>`;
+
+    if(d.telegram)
+        links.innerHTML += `<a style="background:${d.cor}" href="${d.telegram}" target="_blank">Telegram</a>`;
 }
-
-document.documentElement.style.setProperty("--cor", bio.cor);
-document.getElementById("nome").innerText = bio.nome;
-
-let total = 0, clicados = 0;
-const campos = ["youtube","instagram","telegram","tiktok","kwai","grupo","canal"];
-const area = document.getElementById("links");
-
-campos.forEach(c=>{
-    if(bio[c]){
-        total++;
-        const d = document.createElement("div");
-        d.className="link";
-        d.innerText=c.toUpperCase();
-        d.onclick=()=>{
-            if(!d.classList.contains("ok")){
-                d.classList.add("ok");
-                clicados++;
-                bio.cliques++;
-                localStorage.setItem("bios", JSON.stringify(bios));
-                window.open(bio[c],"_blank");
-            }
-            if(clicados===total){
-                const btn=document.getElementById("baixar");
-                btn.disabled=false;
-                btn.style.background=bio.cor;
-                btn.onclick=()=>window.open(bio.download,"_blank");
-            }
-        };
-        area.appendChild(d);
-    }
-});
-
-particlesJS("particles-js",{
-    particles:{
-        number:{value:80},
-        color:{value:bio.snow},
-        shape:{type:"circle"},
-        opacity:{value:0.6},
-        size:{value:3},
-        line_linked:{
-            enable:true,
-            distance:150,
-            color:"#fff",
-            opacity:0.3
-        },
-        move:{enable:true,speed:1.5}
-    }
-});
 </script>
 
 </body>
