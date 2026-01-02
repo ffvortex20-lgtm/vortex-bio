@@ -9,89 +9,20 @@
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
 <style>
-body {
-    margin:0;
-    background:#050505;
-    color:white;
-    font-family:Arial, sans-serif;
-}
+body {margin:0;background:#050505;color:white;font-family:Arial}
+#particles-js{position:fixed;width:100%;height:100%;z-index:0}
 
-#particles-js {
-    position:fixed;
-    width:100%;
-    height:100%;
-    z-index:0;
-}
+.container{position:relative;z-index:2;max-width:420px;margin:auto;padding:20px}
+.card{background:rgba(255,255,255,.05);border-radius:25px;padding:25px;border:1px solid rgba(255,255,255,.1)}
 
-.container {
-    position:relative;
-    z-index:2;
-    max-width:420px;
-    margin:auto;
-    padding:20px;
-}
+input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;background:#111;color:white}
+button{width:100%;padding:14px;border-radius:12px;border:none;background:var(--cor);color:white;font-weight:bold;margin-top:10px;cursor:pointer}
 
-.card {
-    background:rgba(255,255,255,.05);
-    border-radius:25px;
-    padding:25px;
-    border:1px solid rgba(255,255,255,.1);
-}
+.preview{text-align:center;margin-top:20px}
+.preview img{width:90px;height:90px;border-radius:50%;border:3px solid var(--cor);object-fit:cover}
 
-input, select {
-    width:100%;
-    padding:12px;
-    margin:6px 0;
-    border-radius:10px;
-    border:none;
-    background:#111;
-    color:white;
-}
-
-button {
-    width:100%;
-    padding:14px;
-    border-radius:12px;
-    border:none;
-    background:var(--btnColor);
-    color:white;
-    font-weight:bold;
-    margin-top:10px;
-    cursor:pointer;
-}
-
-button:disabled {
-    background:#333;
-}
-
-.preview {
-    margin-top:20px;
-    text-align:center;
-}
-
-.preview img {
-    width:90px;
-    height:90px;
-    border-radius:50%;
-    border:3px solid var(--btnColor);
-    object-fit:cover;
-}
-
-.link-btn {
-    background:rgba(255,255,255,.07);
-    padding:14px;
-    margin:8px 0;
-    border-radius:12px;
-    display:flex;
-    justify-content:center;
-    gap:10px;
-    cursor:pointer;
-    border:1px solid rgba(255,255,255,.15);
-}
-
-.link-btn.visited {
-    background:var(--btnColor);
-}
+.link-btn{padding:14px;margin:8px 0;border-radius:12px;background:rgba(255,255,255,.07);cursor:pointer}
+.link-btn.visited{background:var(--cor)}
 </style>
 </head>
 
@@ -104,9 +35,8 @@ button:disabled {
 
 <h2>🌌 VORTEX BIO</h2>
 
-<input id="name" placeholder="Seu nome">
-
-<input type="file" id="foto" accept="image/*">
+<input id="nome" placeholder="Seu nome">
+<input type="file" id="foto">
 
 <input id="youtube" placeholder="YouTube">
 <input id="instagram" placeholder="Instagram">
@@ -117,108 +47,111 @@ button:disabled {
 <input id="canal" placeholder="WhatsApp Canal">
 
 <label>🎨 Cor dos botões</label>
-<input type="color" id="btnColor" value="#8a2be2">
+<input type="color" id="cor" value="#8a2be2">
 
-<label>❄️ Cor do efeito snow</label>
-<input type="color" id="snowColor" value="#8a2be2">
+<label>❄️ Cor do snow</label>
+<input type="color" id="snow" value="#8a2be2">
 
-<input id="downloadLink" placeholder="Link para liberar download">
+<input id="download" placeholder="Link do download final">
 
-<button onclick="gerar()">✨ GERAR BIO</button>
+<button onclick="gerar()">🚀 GERAR BIO</button>
 
-<div class="preview" id="preview" style="display:none;">
+<div class="preview" id="preview" style="display:none">
     <img id="avatar">
     <h3 id="pname"></h3>
 
-    <div id="linksArea"></div>
+    <div id="links"></div>
 
-    <button id="downloadBtn" disabled onclick="baixar()">⬇️ BAIXAR</button>
+    <button id="baixar" disabled onclick="baixar()">⬇️ BAIXAR</button>
+    <button onclick="compartilhar()">🔗 COMPARTILHAR</button>
 </div>
 
 </div>
 </div>
 
 <script>
-let total = 0;
-let visitados = 0;
-let btnColor = "#8a2be2";
+let total=0, visitados=0;
 
-function gerar() {
-    btnColor = document.getElementById("btnColor").value;
-    document.documentElement.style.setProperty("--btnColor", btnColor);
+function gerar(){
+    document.documentElement.style.setProperty("--cor", cor.value);
 
-    document.getElementById("preview").style.display = "block";
-    document.getElementById("pname").innerText = name.value;
+    document.getElementById("preview").style.display="block";
+    document.getElementById("pname").innerText = nome.value;
 
-    const foto = document.getElementById("foto").files[0];
-    if(foto){
-        document.getElementById("avatar").src = URL.createObjectURL(foto);
+    if(foto.files[0]){
+        avatar.src = URL.createObjectURL(foto.files[0]);
     }
 
-    gerarParticles();
+    gerarSnow();
 
-    const plataformas = [
-        "youtube","instagram","telegram",
-        "tiktok","kwai","grupo","canal"
-    ];
+    const campos=["youtube","instagram","telegram","tiktok","kwai","grupo","canal"];
+    const area=document.getElementById("links");
+    area.innerHTML="";
+    total=0; visitados=0;
 
-    const area = document.getElementById("linksArea");
-    area.innerHTML = "";
-    total = 0;
-    visitados = 0;
-
-    plataformas.forEach(id => {
-        let link = document.getElementById(id).value;
-        if(link){
+    campos.forEach(c=>{
+        if(document.getElementById(c).value){
             total++;
-            let btn = document.createElement("div");
-            btn.className = "link-btn";
-            btn.innerHTML = id.toUpperCase();
-            btn.onclick = () => abrir(btn, link);
-            area.appendChild(btn);
+            let d=document.createElement("div");
+            d.className="link-btn";
+            d.innerText=c.toUpperCase();
+            d.onclick=()=>abrir(d,document.getElementById(c).value);
+            area.appendChild(d);
         }
     });
 
-    copiarLink();
+    gerarLink();
 }
 
-function abrir(btn, link){
+function abrir(btn,link){
     if(!btn.classList.contains("visited")){
         btn.classList.add("visited");
         visitados++;
-        window.open(link, "_blank");
+        window.open(link,"_blank");
     }
-    if(visitados === total){
-        document.getElementById("downloadBtn").disabled = false;
+    if(visitados===total){
+        baixarBtn=document.getElementById("baixar");
+        baixarBtn.disabled=false;
     }
 }
 
 function baixar(){
-    window.open(document.getElementById("downloadLink").value, "_blank");
+    window.open(download.value,"_blank");
 }
 
-function copiarLink(){
-    navigator.clipboard.writeText(window.location.href);
+function gerarLink(){
+    const dados={
+        n:nome.value,
+        c:cor.value
+    };
+    const link=location.origin+location.pathname+"?bio="+btoa(JSON.stringify(dados));
+    navigator.clipboard.writeText(link);
+    alert("✅ Link da bio copiado!");
 }
 
-function gerarParticles(){
-    const cor = document.getElementById("snowColor").value;
+function compartilhar(){
+    navigator.share({
+        title:"Minha Bio",
+        url:location.href
+    });
+}
 
-    particlesJS("particles-js", {
-        particles: {
-            number: { value: 90 },
-            color: { value: cor },
-            shape: { type: "circle" },
-            opacity: { value: 0.6 },
-            size: { value: 3, random: true },
-            line_linked: {
-                enable: true,
-                distance: 150,
-                color: "#ffffff",
-                opacity: 0.3,
-                width: 1
+function gerarSnow(){
+    particlesJS("particles-js",{
+        particles:{
+            number:{value:90},
+            color:{value:snow.value},
+            shape:{type:"circle"},
+            opacity:{value:0.6},
+            size:{value:3,random:true},
+            line_linked:{
+                enable:true,
+                distance:150,
+                color:"#ffffff",
+                opacity:0.3,
+                width:1
             },
-            move: { enable: true, speed: 1.5 }
+            move:{enable:true,speed:1.5}
         }
     });
 }
