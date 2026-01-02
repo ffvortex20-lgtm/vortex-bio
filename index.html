@@ -16,13 +16,23 @@ body {margin:0;background:#050505;color:white;font-family:Arial}
 .card{background:rgba(255,255,255,.05);border-radius:25px;padding:25px;border:1px solid rgba(255,255,255,.1)}
 
 input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;background:#111;color:white}
-button{width:100%;padding:14px;border-radius:12px;border:none;background:var(--cor);color:white;font-weight:bold;margin-top:10px;cursor:pointer}
+
+button{width:100%;padding:14px;border-radius:12px;border:none;font-weight:bold;cursor:pointer}
+
+#btnGerar{background:#8a2be2;color:white}
+#btnBaixar{background:red;color:white}
 
 .preview{text-align:center;margin-top:20px}
 .preview img{width:90px;height:90px;border-radius:50%;border:3px solid var(--cor);object-fit:cover}
 
-.link-btn{padding:14px;margin:8px 0;border-radius:12px;background:rgba(255,255,255,.07);cursor:pointer}
-.link-btn.visited{background:var(--cor)}
+.link-btn{
+    padding:14px;
+    margin:8px 0;
+    border-radius:12px;
+    background:rgba(255,255,255,.07);
+    cursor:pointer;
+}
+.link-btn.ok{background:var(--cor)}
 </style>
 </head>
 
@@ -52,9 +62,9 @@ button{width:100%;padding:14px;border-radius:12px;border:none;background:var(--c
 <label>❄️ Cor do snow</label>
 <input type="color" id="snow" value="#8a2be2">
 
-<input id="download" placeholder="Link do download final">
+<input id="download" placeholder="Link final para download">
 
-<button onclick="gerar()">🚀 GERAR BIO</button>
+<button id="btnGerar" onclick="gerar()">GERAR BIO</button>
 
 <div class="preview" id="preview" style="display:none">
     <img id="avatar">
@@ -62,8 +72,7 @@ button{width:100%;padding:14px;border-radius:12px;border:none;background:var(--c
 
     <div id="links"></div>
 
-    <button id="baixar" disabled onclick="baixar()">⬇️ BAIXAR</button>
-    <button onclick="compartilhar()">🔗 COMPARTILHAR</button>
+    <button id="btnBaixar" disabled onclick="baixar()">⬇️ BAIXAR</button>
 </div>
 
 </div>
@@ -92,26 +101,28 @@ function gerar(){
     campos.forEach(c=>{
         if(document.getElementById(c).value){
             total++;
-            let d=document.createElement("div");
-            d.className="link-btn";
-            d.innerText=c.toUpperCase();
-            d.onclick=()=>abrir(d,document.getElementById(c).value);
-            area.appendChild(d);
+            let b=document.createElement("div");
+            b.className="link-btn";
+            b.innerText=c.toUpperCase();
+            b.onclick=()=>abrir(b,document.getElementById(c).value);
+            area.appendChild(b);
         }
     });
 
-    gerarLink();
+    gerarLinkUnico();
 }
 
 function abrir(btn,link){
-    if(!btn.classList.contains("visited")){
-        btn.classList.add("visited");
+    if(!btn.classList.contains("ok")){
+        btn.classList.add("ok");
         visitados++;
         window.open(link,"_blank");
     }
-    if(visitados===total){
-        baixarBtn=document.getElementById("baixar");
-        baixarBtn.disabled=false;
+
+    if(visitados === total){
+        const baixar = document.getElementById("btnBaixar");
+        baixar.disabled = false;
+        baixar.style.background = cor.value;
     }
 }
 
@@ -119,21 +130,18 @@ function baixar(){
     window.open(download.value,"_blank");
 }
 
-function gerarLink(){
-    const dados={
+function gerarLinkUnico(){
+    const dados = {
         n:nome.value,
-        c:cor.value
+        c:cor.value,
+        t:Date.now()
     };
-    const link=location.origin+location.pathname+"?bio="+btoa(JSON.stringify(dados));
+
+    const hash = btoa(JSON.stringify(dados));
+    const link = location.origin + location.pathname + "?bio=" + hash;
+
     navigator.clipboard.writeText(link);
     alert("✅ Link da bio copiado!");
-}
-
-function compartilhar(){
-    navigator.share({
-        title:"Minha Bio",
-        url:location.href
-    });
 }
 
 function gerarSnow(){
