@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VORTEX BIO | Seus Links no Espaço</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* CONFIGURAÇÕES GERAIS */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        
+        body { 
+            background-color: #050505; 
+            color: white; 
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* CARD PRINCIPAL (GLASSMORPHISM) */
+        .main-card {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo-vortex {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #8a2be2, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        /* FORMULÁRIO */
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { font-size: 0.8rem; color: #8a2be2; font-weight: bold; margin-left: 5px; }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-top: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: #8a2be2; background: rgba(255, 255, 255, 0.1); outline: none; }
+
+        .btn-generate {
+            width: 100%;
+            padding: 16px;
+            margin-top: 10px;
+            background: #8a2be2;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.3);
+        }
+
+        .btn-generate:hover { background: #a04ef6; transform: translateY(-2px); }
+
+        /* BIO GERADA */
+        .bio-display { display: none; }
+        .profile-img { 
+            width: 110px; height: 110px; 
+            border-radius: 50%; 
+            border: 4px solid #8a2be2; 
+            margin-bottom: 15px; 
+            object-fit: cover;
+            padding: 3px;
+            background: #000;
+        }
+        
+        .link-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.07);
+            padding: 16px;
+            border-radius: 15px;
+            text-decoration: none;
+            color: white;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s ease;
+        }
+
+        .link-button:hover { 
+            background: rgba(138, 43, 226, 0.2); 
+            border-color: #8a2be2;
+            transform: scale(1.03);
+        }
+
+        .github-special { 
+            border: 1px solid #8a2be2;
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .btn-copy {
+            background: transparent;
+            border: 1px dashed #555;
+            color: #aaa;
+            padding: 10px;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="particles-js"></div>
+
+    <div id="setup-screen" class="main-card">
+        <div class="logo-vortex">VORTEX BIO</div>
+        
+        <div class="input-group">
+            <label>NOME OU APELIDO</label>
+            <input type="text" id="nameInput" placeholder="Ex: João Silva">
+        </div>
+        
+        <div class="input-group">
+            <label>USUÁRIO GITHUB</label>
+            <input type="text" id="githubInput" placeholder="Seu user do GitHub">
+        </div>
+
+        <div class="input-group">
+            <label>LINK DO INSTAGRAM</label>
+            <input type="text" id="instaInput" placeholder="Link completo do perfil">
+        </div>
+
+        <button class="btn-generate" onclick="buildBio()">GERAR MEU VORTEX</button>
+    </div>
+
+    <div id="result-screen" class="main-card bio-display">
+        <img id="displayImg" src="https://api.dicebear.com/7.x/shapes/svg?seed=vortex" class="profile-img">
+        <h2 id="displayName" style="margin-bottom: 5px;">Nome</h2>
+        <p style="color: #888; font-size: 0.9rem; margin-bottom: 25px;">@vortex_user</p>
+
+        <div id="linksWrapper"></div>
+
+        <button class="btn-copy" onclick="copyLink()"><i class="fas fa-share-nodes"></i> Copiar link da minha Bio</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // EFEITO SNOW: BOLINHA ROXA E LINHA BRANCA
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 90, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#8a2be2" }, // Roxo
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.6 },
+                "size": { "value": 3, "random": true },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#ffffff", // Branco
+                    "opacity": 0.3,
+                    "width": 1
+                },
+                "move": { "enable": true, "speed": 1.5, "direction": "none" }
+            },
+            "interactivity": {
+                "events": { "onhover": { "enable": true, "mode": "grab" } }
+            }
+        });
+
+        function buildBio() {
+            const name = document.getElementById('nameInput').value || 'Vortex User';
+            const github = document.getElementById('githubInput').value;
+            const insta = document.getElementById('instaInput').value;
+
+            // Criar URL compartilhável usando Base64 (simples)
+            const userData = { n: name, g: github, i: insta };
+            const encoded = btoa(JSON.stringify(userData));
+            window.history.pushState({}, '', '?u=' + encoded);
+
+            renderBio(name, github, insta);
+        }
+
+        function renderBio(name, github, insta) {
+            document.getElementById('displayName').innerText = name;
+            const wrapper = document.getElementById('linksWrapper');
+            wrapper.innerHTML = '';
+
+            if(github) {
+                wrapper.innerHTML += `
+                    <a href="https://github.com/${github}" target="_blank" class="link-button github-special">
+                        <i class="fab fa-github fa-lg"></i> GitHub Profile
+                    </a>`;
+                document.getElementById('displayImg').src = `https://github.com/${github}.png`;
+            }
+
+            if(insta) {
+                wrapper.innerHTML += `
+                    <a href="${insta}" target="_blank" class="link-button">
+                        <i class="fab fa-instagram fa-lg"></i> Instagram
+                    </a>`;
+            }
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+        }
+
+        // Checar se já existe um usuário no link ao abrir a página
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userParam = urlParams.get('u');
+            if (userParam) {
+                try {
+                    const data = JSON.parse(atob(userParam));
+                    renderBio(data.n, data.g, data.i);
+                } catch(e) { console.error("Erro ao carregar link"); }
+            }
+        };
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert("Link copiado! Agora cole na sua bio do Instagram.");
+        }
+    </script>
+</body>
+</html>
