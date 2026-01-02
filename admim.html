@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Painel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{background:#0a0a0a;color:white;font-family:Arial;padding:20px}
+.card{background:#111;padding:20px;border-radius:15px;margin-bottom:15px}
+button{padding:8px 12px;border:none;border-radius:8px;cursor:pointer}
+.copy{background:#8a2be2;color:white}
+.open{background:#00c853;color:white}
+.del{background:#ff1744;color:white}
+</style>
+</head>
+
+<body>
+
+<h2>📊 Painel Admin</h2>
+<div id="lista"></div>
+
+<script>
+let bios = JSON.parse(localStorage.getItem("bios")) || [];
+const lista = document.getElementById("lista");
+
+function render(){
+    lista.innerHTML="";
+    bios.forEach((b,i)=>{
+        const d=document.createElement("div");
+        d.className="card";
+        d.innerHTML=`
+            <b>${b.nome}</b><br>
+            👁️ Cliques: ${b.cliques}<br>
+            📅 ${b.data}<br><br>
+
+            <button class="copy" onclick="copiar('${location.origin}/bio.html?id=${b.id}')">📋 Copiar</button>
+            <button class="open" onclick="window.open('${location.origin}/bio.html?id=${b.id}')">🔗 Abrir</button>
+            <button class="del" onclick="remover(${i})">🗑️ Apagar</button>
+        `;
+        lista.appendChild(d);
+    });
+}
+
+function copiar(link){
+    navigator.clipboard.writeText(link);
+    alert("Link copiado!");
+}
+
+function remover(i){
+    if(confirm("Excluir esta bio?")){
+        bios.splice(i,1);
+        localStorage.setItem("bios", JSON.stringify(bios));
+        render();
+    }
+}
+
+render();
+</script>
+
+</body>
+</html>
