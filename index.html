@@ -32,13 +32,13 @@ body {
 }
 
 .card {
-    background:rgba(255,255,255,0.05);
+    background:rgba(255,255,255,.05);
     border-radius:25px;
     padding:25px;
     border:1px solid rgba(255,255,255,.1);
 }
 
-input {
+input, select {
     width:100%;
     padding:12px;
     margin:6px 0;
@@ -53,7 +53,7 @@ button {
     padding:14px;
     border-radius:12px;
     border:none;
-    background:#8a2be2;
+    background:var(--btnColor);
     color:white;
     font-weight:bold;
     margin-top:10px;
@@ -71,8 +71,10 @@ button:disabled {
 
 .preview img {
     width:90px;
+    height:90px;
     border-radius:50%;
-    border:3px solid #8a2be2;
+    border:3px solid var(--btnColor);
+    object-fit:cover;
 }
 
 .link-btn {
@@ -88,11 +90,7 @@ button:disabled {
 }
 
 .link-btn.visited {
-    background:#8a2be2;
-}
-
-.download {
-    margin-top:15px;
+    background:var(--btnColor);
 }
 </style>
 </head>
@@ -107,6 +105,9 @@ button:disabled {
 <h2>🌌 VORTEX BIO</h2>
 
 <input id="name" placeholder="Seu nome">
+
+<input type="file" id="foto" accept="image/*">
+
 <input id="youtube" placeholder="YouTube">
 <input id="instagram" placeholder="Instagram">
 <input id="telegram" placeholder="Telegram">
@@ -115,19 +116,23 @@ button:disabled {
 <input id="grupo" placeholder="WhatsApp Grupo">
 <input id="canal" placeholder="WhatsApp Canal">
 
+<label>🎨 Cor dos botões</label>
+<input type="color" id="btnColor" value="#8a2be2">
+
+<label>❄️ Cor do efeito snow</label>
+<input type="color" id="snowColor" value="#8a2be2">
+
 <input id="downloadLink" placeholder="Link para liberar download">
 
-<button onclick="gerar()">Gerar Bio</button>
+<button onclick="gerar()">✨ GERAR BIO</button>
 
-<!-- PREVIEW -->
 <div class="preview" id="preview" style="display:none;">
-    <img id="avatar" src="https://api.dicebear.com/7.x/shapes/svg?seed=vortex">
+    <img id="avatar">
     <h3 id="pname"></h3>
 
     <div id="linksArea"></div>
 
-    <button class="download" id="downloadBtn" disabled onclick="baixar()">⬇️ BAIXAR</button>
-    <button onclick="compartilhar()">🔗 COMPARTILHAR</button>
+    <button id="downloadBtn" disabled onclick="baixar()">⬇️ BAIXAR</button>
 </div>
 
 </div>
@@ -136,84 +141,87 @@ button:disabled {
 <script>
 let total = 0;
 let visitados = 0;
+let btnColor = "#8a2be2";
 
 function gerar() {
-    const plataformas = [
-        {id:"youtube", icon:"fab fa-youtube"},
-        {id:"instagram", icon:"fab fa-instagram"},
-        {id:"telegram", icon:"fab fa-telegram"},
-        {id:"tiktok", icon:"fab fa-tiktok"},
-        {id:"kwai", icon:"fas fa-video"},
-        {id:"grupo", icon:"fab fa-whatsapp"},
-        {id:"canal", icon:"fab fa-whatsapp"}
-    ];
+    btnColor = document.getElementById("btnColor").value;
+    document.documentElement.style.setProperty("--btnColor", btnColor);
 
     document.getElementById("preview").style.display = "block";
     document.getElementById("pname").innerText = name.value;
-    document.getElementById("avatar").src =
-        `https://api.dicebear.com/7.x/shapes/svg?seed=${name.value}`;
+
+    const foto = document.getElementById("foto").files[0];
+    if(foto){
+        document.getElementById("avatar").src = URL.createObjectURL(foto);
+    }
+
+    gerarParticles();
+
+    const plataformas = [
+        "youtube","instagram","telegram",
+        "tiktok","kwai","grupo","canal"
+    ];
 
     const area = document.getElementById("linksArea");
     area.innerHTML = "";
     total = 0;
     visitados = 0;
 
-    plataformas.forEach(p => {
-        let link = document.getElementById(p.id).value;
-        if(link) {
+    plataformas.forEach(id => {
+        let link = document.getElementById(id).value;
+        if(link){
             total++;
             let btn = document.createElement("div");
             btn.className = "link-btn";
-            btn.innerHTML = `<i class="${p.icon}"></i> ${p.id}`;
+            btn.innerHTML = id.toUpperCase();
             btn.onclick = () => abrir(btn, link);
             area.appendChild(btn);
         }
     });
+
+    copiarLink();
 }
 
-function abrir(btn, link) {
-    if(!btn.classList.contains("visited")) {
+function abrir(btn, link){
+    if(!btn.classList.contains("visited")){
         btn.classList.add("visited");
         visitados++;
         window.open(link, "_blank");
     }
-
-    if(visitados === total) {
+    if(visitados === total){
         document.getElementById("downloadBtn").disabled = false;
     }
 }
 
-function baixar() {
-    const link = document.getElementById("downloadLink").value;
-    if(!link) return alert("Coloque o link de download!");
-    window.open(link, "_blank");
+function baixar(){
+    window.open(document.getElementById("downloadLink").value, "_blank");
 }
 
-function compartilhar() {
-    navigator.share({
-        title: "Minha Bio",
-        url: window.location.href
+function copiarLink(){
+    navigator.clipboard.writeText(window.location.href);
+}
+
+function gerarParticles(){
+    const cor = document.getElementById("snowColor").value;
+
+    particlesJS("particles-js", {
+        particles: {
+            number: { value: 90 },
+            color: { value: cor },
+            shape: { type: "circle" },
+            opacity: { value: 0.6 },
+            size: { value: 3, random: true },
+            line_linked: {
+                enable: true,
+                distance: 150,
+                color: "#ffffff",
+                opacity: 0.3,
+                width: 1
+            },
+            move: { enable: true, speed: 1.5 }
+        }
     });
 }
-
-/* PARTICLES */
-particlesJS("particles-js", {
-  particles: {
-    number: { value: 90 },
-    color: { value: "#8a2be2" },
-    shape: { type: "circle" },
-    opacity: { value: 0.6 },
-    size: { value: 3, random: true },
-    line_linked: {
-      enable: true,
-      distance: 150,
-      color: "#ffffff",
-      opacity: 0.3,
-      width: 1
-    },
-    move: { enable: true, speed: 1.5 }
-  }
-});
 </script>
 
 </body>
