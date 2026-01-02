@@ -2,52 +2,19 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Vortex Bio</title>
+<title>Criar Bio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
 <style>
-body {margin:0;background:#050505;color:white;font-family:Arial}
-#particles-js{position:fixed;width:100%;height:100%;z-index:0}
-
-.container{position:relative;z-index:2;max-width:420px;margin:auto;padding:20px}
-.card{background:rgba(255,255,255,.05);border-radius:25px;padding:25px;border:1px solid rgba(255,255,255,.1)}
-
-input{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none;background:#111;color:white}
-
-button{width:100%;padding:14px;border-radius:12px;border:none;font-weight:bold;cursor:pointer}
-
-#btnGerar{background:#8a2be2;color:white}
-#btnBaixar{background:red;color:white}
-
-.preview{text-align:center;margin-top:20px}
-.preview img{width:90px;height:90px;border-radius:50%;border:3px solid var(--cor);object-fit:cover}
-
-.link-btn{
-    padding:14px;
-    margin:8px 0;
-    border-radius:12px;
-    background:rgba(255,255,255,.07);
-    cursor:pointer;
-}
-.link-btn.ok{background:var(--cor)}
+body{background:#0a0a0a;color:white;font-family:Arial;padding:20px}
+input,button{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:none}
+button{background:#8a2be2;color:white;font-weight:bold}
 </style>
 </head>
-
 <body>
 
-<div id="particles-js"></div>
+<h2>🌌 Criar Bio</h2>
 
-<div class="container">
-<div class="card">
-
-<h2>🌌 VORTEX BIO</h2>
-
-<input id="nome" placeholder="Seu nome">
-<input type="file" id="foto">
-
+<input id="nome" placeholder="Nome">
 <input id="youtube" placeholder="YouTube">
 <input id="instagram" placeholder="Instagram">
 <input id="telegram" placeholder="Telegram">
@@ -62,106 +29,37 @@ button{width:100%;padding:14px;border-radius:12px;border:none;font-weight:bold;c
 <label>❄️ Cor do snow</label>
 <input type="color" id="snow" value="#8a2be2">
 
-<input id="download" placeholder="Link final para download">
+<input id="download" placeholder="Link do download final">
 
-<button id="btnGerar" onclick="gerar()">GERAR BIO</button>
-
-<div class="preview" id="preview" style="display:none">
-    <img id="avatar">
-    <h3 id="pname"></h3>
-
-    <div id="links"></div>
-
-    <button id="btnBaixar" disabled onclick="baixar()">⬇️ BAIXAR</button>
-</div>
-
-</div>
-</div>
+<button onclick="gerar()">GERAR BIO</button>
 
 <script>
-let total=0, visitados=0;
-
 function gerar(){
-    document.documentElement.style.setProperty("--cor", cor.value);
-
-    document.getElementById("preview").style.display="block";
-    document.getElementById("pname").innerText = nome.value;
-
-    if(foto.files[0]){
-        avatar.src = URL.createObjectURL(foto.files[0]);
-    }
-
-    gerarSnow();
-
-    const campos=["youtube","instagram","telegram","tiktok","kwai","grupo","canal"];
-    const area=document.getElementById("links");
-    area.innerHTML="";
-    total=0; visitados=0;
-
-    campos.forEach(c=>{
-        if(document.getElementById(c).value){
-            total++;
-            let b=document.createElement("div");
-            b.className="link-btn";
-            b.innerText=c.toUpperCase();
-            b.onclick=()=>abrir(b,document.getElementById(c).value);
-            area.appendChild(b);
-        }
-    });
-
-    gerarLinkUnico();
-}
-
-function abrir(btn,link){
-    if(!btn.classList.contains("ok")){
-        btn.classList.add("ok");
-        visitados++;
-        window.open(link,"_blank");
-    }
-
-    if(visitados === total){
-        const baixar = document.getElementById("btnBaixar");
-        baixar.disabled = false;
-        baixar.style.background = cor.value;
-    }
-}
-
-function baixar(){
-    window.open(download.value,"_blank");
-}
-
-function gerarLinkUnico(){
     const dados = {
-        n:nome.value,
-        c:cor.value,
-        t:Date.now()
+        id: Date.now(),
+        nome: nome.value,
+        youtube: youtube.value,
+        instagram: instagram.value,
+        telegram: telegram.value,
+        tiktok: tiktok.value,
+        kwai: kwai.value,
+        grupo: grupo.value,
+        canal: canal.value,
+        cor: cor.value,
+        snow: snow.value,
+        download: download.value,
+        cliques: 0,
+        data: new Date().toLocaleString()
     };
 
-    const hash = btoa(JSON.stringify(dados));
-    const link = location.origin + location.pathname + "?bio=" + hash;
+    let bios = JSON.parse(localStorage.getItem("bios")) || [];
+    bios.push(dados);
+    localStorage.setItem("bios", JSON.stringify(bios));
 
+    const link = location.origin + "/bio.html?id=" + dados.id;
     navigator.clipboard.writeText(link);
-    alert("✅ Link da bio copiado!");
-}
 
-function gerarSnow(){
-    particlesJS("particles-js",{
-        particles:{
-            number:{value:90},
-            color:{value:snow.value},
-            shape:{type:"circle"},
-            opacity:{value:0.6},
-            size:{value:3,random:true},
-            line_linked:{
-                enable:true,
-                distance:150,
-                color:"#ffffff",
-                opacity:0.3,
-                width:1
-            },
-            move:{enable:true,speed:1.5}
-        }
-    });
+    alert("✅ Bio criada!\nLink copiado:\n" + link);
 }
 </script>
 
